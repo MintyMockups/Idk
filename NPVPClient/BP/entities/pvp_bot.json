@@ -1,0 +1,213 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "verxhade:pvp_bot",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "runtime_identifier": "minecraft:zombie"
+    },
+    "component_groups": {
+      "bot:easy": {
+        "minecraft:movement": { "value": 0.28 },
+        "minecraft:attack": { "damage": 5 },
+        "minecraft:health": { "value": 30, "max": 30 },
+        "minecraft:knockback_resistance": { "value": 0.0 },
+        "minecraft:behavior.melee_attack": {
+          "priority": 1,
+          "speed_multiplier": 1.15,
+          "cooldown_time": 0.4,
+          "track_target": true,
+          "reach_multiplier": 2.5,
+          "random_stop_interval": 0,
+          "min_path_time": 0.05,
+          "max_path_time": 0.1,
+          "inner_boundary_time_increase": 0.05,
+          "outer_boundary_time_increase": 0.05,
+          "path_fail_time_increase": 0.01
+        }
+      },
+      "bot:medium": {
+        "minecraft:movement": { "value": 0.30 },
+        "minecraft:attack": { "damage": 8 },
+        "minecraft:health": { "value": 50, "max": 50 },
+        "minecraft:knockback_resistance": { "value": 0.0 },
+        "minecraft:behavior.melee_attack": {
+          "priority": 1,
+          "speed_multiplier": 1.20,
+          "cooldown_time": 0.3,
+          "track_target": true,
+          "reach_multiplier": 2.8,
+          "random_stop_interval": 0,
+          "min_path_time": 0.05,
+          "max_path_time": 0.1,
+          "inner_boundary_time_increase": 0.05,
+          "outer_boundary_time_increase": 0.05,
+          "path_fail_time_increase": 0.01
+        }
+      },
+      "bot:hard": {
+        "minecraft:movement": { "value": 0.33 },
+        "minecraft:attack": { "damage": 12 },
+        "minecraft:health": { "value": 60, "max": 60 },
+        "minecraft:knockback_resistance": { "value": 0.5 },
+        "minecraft:behavior.melee_attack": {
+          "priority": 1,
+          "speed_multiplier": 1.25,
+          "cooldown_time": 0.2,
+          "track_target": true,
+          "reach_multiplier": 3.2,
+          "random_stop_interval": 0,
+          "min_path_time": 0.05,
+          "max_path_time": 0.1,
+          "inner_boundary_time_increase": 0.05,
+          "outer_boundary_time_increase": 0.05,
+          "path_fail_time_increase": 0.01
+        }
+      },
+      "bot:harder": {
+        "minecraft:movement": { "value": 0.36 },
+        "minecraft:attack": { "damage": 15 },
+        "minecraft:health": { "value": 70, "max": 70 },
+        "minecraft:knockback_resistance": { "value": 0.10 },
+        "minecraft:behavior.melee_attack": {
+          "priority": 1,
+          "speed_multiplier": 1.30,
+          "cooldown_time": 0.1,
+          "track_target": true,
+          "reach_multiplier": 3.5,
+          "random_stop_interval": 0,
+          "min_path_time": 0.05,
+          "max_path_time": 0.1,
+          "inner_boundary_time_increase": 0.05,
+          "outer_boundary_time_increase": 0.05,
+          "path_fail_time_increase": 0.01
+        }
+      },
+      "bot:dummy": {
+        "minecraft:movement": { "value": 0.0 },
+        "minecraft:attack": { "damage": 0 },
+        "minecraft:health": { "value": 100, "max": 100 },
+        "minecraft:knockback_resistance": { "value": 1.0 }
+      },
+      "bot:enchanted_gear": {
+        "minecraft:equipment": {
+          "table": "loot_tables/equipment/pvp_bot_gear.json",
+          "slot_drop_chance": [
+            { "slot": "slot.armor.head", "drop_chance": 1.0 },
+            { "slot": "slot.armor.chest", "drop_chance": 1.0 },
+            { "slot": "slot.armor.legs", "drop_chance": 1.0 },
+            { "slot": "slot.armor.feet", "drop_chance": 1.0 },
+            { "slot": "slot.weapon.mainhand", "drop_chance": 1.0 },
+            { "slot": "slot.weapon.offhand", "drop_chance": 1.0 }
+          ]
+        }
+      },
+      "bot:plain_gear": {
+        "minecraft:equipment": {
+          "table": "loot_tables/equipment/pvp_bot_plain.json",
+          "slot_drop_chance": [
+            { "slot": "slot.armor.head", "drop_chance": 1.0 },
+            { "slot": "slot.armor.chest", "drop_chance": 1.0 },
+            { "slot": "slot.armor.legs", "drop_chance": 1.0 },
+            { "slot": "slot.armor.feet", "drop_chance": 1.0 },
+            { "slot": "slot.weapon.mainhand", "drop_chance": 1.0 },
+            { "slot": "slot.weapon.offhand", "drop_chance": 1.0 }
+          ]
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": ["monster", "mob", "zombie", "pvp_bot"]
+      },
+      "minecraft:health": {
+        "value": 30,
+        "max": 30
+      },
+      "minecraft:attack": {
+        "damage": 8
+      },
+      "minecraft:follow_range": {
+        "value": 48,
+        "max": 48
+      },
+      "minecraft:collision_box": {
+        "width": 0.6,
+        "height": 1.8
+      },
+      "minecraft:navigation.walk": {
+        "can_path_over_water": true,
+        "avoid_water": false,
+        "can_open_doors": true,
+        "is_amphibious": true,
+        "can_pass_doors": true
+      },
+      "minecraft:movement.basic": {},
+      "minecraft:jump.static": {},
+      "minecraft:can_climb": {},
+      "minecraft:equippable": {},
+      "minecraft:inventory": {
+        "inventory_size": 36
+      },
+      "minecraft:physics": {},
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 1,
+        "must_see": false,
+        "reselect_targets": true,
+        "entity_types": [
+          {
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "value": "player"
+            },
+            "max_dist": 48
+          }
+        ]
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+        "add": {
+          "component_groups": ["bot:medium"]
+        }
+      },
+      "vh:apply_enchanted": {
+        "add": { "component_groups": ["bot:enchanted_gear"] },
+        "remove": { "component_groups": ["bot:plain_gear"] }
+      },
+      "vh:apply_plain": {
+        "add": { "component_groups": ["bot:plain_gear"] },
+        "remove": { "component_groups": ["bot:enchanted_gear"] }
+      },
+      "set_easy": {
+        "add": { "component_groups": ["bot:easy"] },
+        "remove": { "component_groups": ["bot:medium", "bot:hard", "bot:harder", "bot:dummy"] }
+      },
+      "set_medium": {
+        "add": { "component_groups": ["bot:medium"] },
+        "remove": { "component_groups": ["bot:easy", "bot:hard", "bot:harder", "bot:dummy"] }
+      },
+      "set_hard": {
+        "add": { "component_groups": ["bot:hard"] },
+        "remove": { "component_groups": ["bot:easy", "bot:medium", "bot:harder", "bot:dummy"] }
+      },
+      "set_harder": {
+        "add": { "component_groups": ["bot:harder"] },
+        "remove": { "component_groups": ["bot:easy", "bot:medium", "bot:hard", "bot:dummy"] }
+      },
+      "set_dummy": {
+        "add": { "component_groups": ["bot:dummy"] },
+        "remove": { "component_groups": ["bot:easy", "bot:medium", "bot:hard", "bot:harder"] }
+      }
+    }
+  }
+}

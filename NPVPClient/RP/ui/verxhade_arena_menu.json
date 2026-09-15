@@ -1,0 +1,273 @@
+{
+  "namespace": "verxhade_arena_menu",
+
+  "combat_panel": {
+    "type": "stack_panel",
+    "orientation": "vertical",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      {
+        "sec1@verxhade_common.section_title": { "text": "COMBAT STATUS & DURABILITY" }
+      },
+      { "gap1": { "type": "panel", "size": [ "100%", 4 ] } },
+      {
+        "health_card@verxhade_common.card_background": {
+          "size": [ "100%", 22 ],
+          "controls": [
+            { "hp_lbl@verxhade_common.info_label": { "text": "Health Status: Active (HUD Synchronized)", "offset": [ 6, 6 ] } }
+          ]
+        }
+      },
+      { "gap2": { "type": "panel", "size": [ "100%", 4 ] } },
+      {
+        "armor_card@verxhade_common.card_background": {
+          "size": [ "100%", 22 ],
+          "controls": [
+            { "armor_lbl@verxhade_common.info_label": { "text": "Armor Tracking: Live Actionbar Feed", "offset": [ 6, 6 ] } }
+          ]
+        }
+      }
+    ]
+  },
+
+  "hud_panel": {
+    "type": "stack_panel",
+    "orientation": "vertical",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      {
+        "sec1@verxhade_common.section_title": { "text": "HUD DISPLAY OPTIONS" }
+      },
+      { "gap1": { "type": "panel", "size": [ "100%", 4 ] } },
+      {
+        "tgl_armor@verxhade_common.toggle_setting": {
+          "$setting_label": "Armor & Item HUD",
+          "$toggle_name": "verxhade_tgl_armor_hud"
+        }
+      }
+    ]
+  },
+
+  "crosshair_panel": {
+    "type": "stack_panel",
+    "orientation": "vertical",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      {
+        "sec1@verxhade_common.section_title": { "text": "CUSTOM CROSSHAIR SELECTOR" }
+      },
+      { "gap1": { "type": "panel", "size": [ "100%", 4 ] } },
+      {
+        "tgl_dot@verxhade_common.toggle_setting": {
+          "$setting_label": "Verxhade Purple Dot Crosshair",
+          "$toggle_name": "verxhade_crosshair_dot_toggle"
+        }
+      },
+      { "gap2": { "type": "panel", "size": [ "100%", 4 ] } },
+      {
+        "tgl_circle@verxhade_common.toggle_setting": {
+          "$setting_label": "Verxhade Box-Circle Crosshair",
+          "$toggle_name": "verxhade_crosshair_circle_toggle"
+        }
+      }
+    ]
+  },
+
+  "arena_panel": {
+    "type": "stack_panel",
+    "orientation": "vertical",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      {
+        "sec1@verxhade_common.section_title": { "text": "ALL-IN-1 KIT PVP ARENA INFO" }
+      },
+      { "gap1": { "type": "panel", "size": [ "100%", 4 ] } },
+      {
+        "kit_card@verxhade_common.card_background": {
+          "size": [ "100%", 24 ],
+          "controls": [
+            { "lbl@verxhade_common.info_label": { "text": "Kit Info: Synchronized with Arena Server Loadout", "offset": [ 6, 7 ] } }
+          ]
+        }
+      }
+    ]
+  },
+
+  "settings_panel": {
+    "type": "stack_panel",
+    "orientation": "vertical",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      {
+        "sec1@verxhade_common.section_title": { "text": "CLIENT UI SETTINGS" }
+      },
+      { "gap1": { "type": "panel", "size": [ "100%", 4 ] } },
+      {
+        "tgl_compact@verxhade_common.toggle_setting": {
+          "$setting_label": "Compact HUD Mode",
+          "$toggle_name": "verxhade_tgl_compact_mode"
+        }
+      },
+      { "gap2": { "type": "panel", "size": [ "100%", 6 ] } },
+      {
+        "close_btn@verxhade_common.action_button": {
+          "$button_text": "Close Menu",
+          "$pressed_button_name": "button.verxhade_menu_toggle"
+        }
+      }
+    ]
+  },
+
+  "main_menu_panel": {
+    "type": "panel",
+    "size": [ 240, 160 ],
+    "anchor_from": "center",
+    "anchor_to": "center",
+    "controls": [
+      {
+        "bg@verxhade_common.dark_panel_background": {
+          "size": [ "100%", "100%" ]
+        }
+      },
+      {
+        "content_layout": {
+          "type": "stack_panel",
+          "orientation": "vertical",
+          "size": [ "100% - 12px", "100% - 12px" ],
+          "offset": [ 6, 6 ],
+          "controls": [
+            {
+              "title_bar": {
+                "type": "panel",
+                "size": [ "100%", 16 ],
+                "controls": [
+                  {
+                    "title@verxhade_common.header_label": {
+                      "text": "VERXHADE ARENA",
+                      "alignment": "left"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "tab_bar": {
+                "type": "stack_panel",
+                "orientation": "horizontal",
+                "size": [ "100%", 20 ],
+                "controls": [
+                  {
+                    "tab0@verxhade_common.tab_button": {
+                      "$tab_text": "COMBAT",
+                      "size": [ "20%", 20 ],
+                      "$toggle_group_forced_index": 0,
+                      "$toggle_default_state": true
+                    }
+                  },
+                  {
+                    "tab1@verxhade_common.tab_button": {
+                      "$tab_text": "HUD",
+                      "size": [ "20%", 20 ],
+                      "$toggle_group_forced_index": 1
+                    }
+                  },
+                  {
+                    "tab2@verxhade_common.tab_button": {
+                      "$tab_text": "CROSS",
+                      "size": [ "20%", 20 ],
+                      "$toggle_group_forced_index": 2
+                    }
+                  },
+                  {
+                    "tab3@verxhade_common.tab_button": {
+                      "$tab_text": "ARENA",
+                      "size": [ "20%", 20 ],
+                      "$toggle_group_forced_index": 3
+                    }
+                  },
+                  {
+                    "tab4@verxhade_common.tab_button": {
+                      "$tab_text": "SETTING",
+                      "size": [ "20%", 20 ],
+                      "$toggle_group_forced_index": 4
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "tab_divider": {
+                "type": "panel",
+                "size": [ "100%", 6 ]
+              }
+            },
+            {
+              "page_container": {
+                "type": "panel",
+                "size": [ "100%", "100% - 42px" ],
+                "controls": [
+                  {
+                    "page_combat@verxhade_arena_menu.combat_panel": {
+                      "bindings": [
+                        {
+                          "binding_name": "#verxhade_tabs",
+                          "binding_name_override": "#visible",
+                          "binding_type": "global",
+                          "binding_condition": "always_true"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "page_hud@verxhade_arena_menu.hud_panel": {
+                      "bindings": [
+                        {
+                          "binding_name": "#verxhade_tabs",
+                          "binding_name_override": "#visible",
+                          "binding_type": "global"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "page_crosshair@verxhade_arena_menu.crosshair_panel": {
+                      "bindings": [
+                        {
+                          "binding_name": "#verxhade_tabs",
+                          "binding_name_override": "#visible",
+                          "binding_type": "global"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "page_arena@verxhade_arena_menu.arena_panel": {
+                      "bindings": [
+                        {
+                          "binding_name": "#verxhade_tabs",
+                          "binding_name_override": "#visible",
+                          "binding_type": "global"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "page_settings@verxhade_arena_menu.settings_panel": {
+                      "bindings": [
+                        {
+                          "binding_name": "#verxhade_tabs",
+                          "binding_name_override": "#visible",
+                          "binding_type": "global"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

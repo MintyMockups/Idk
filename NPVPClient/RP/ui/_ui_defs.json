@@ -1,0 +1,7 @@
+{
+  "ui_defs": [
+    "ui/verxhade_common.json",
+    "ui/verxhade_arena_menu.json",
+    "ui/hud_screen.json"
+  ]
+}

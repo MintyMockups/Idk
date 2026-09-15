@@ -1,0 +1,260 @@
+{
+  "namespace": "verxhade_common",
+
+  "dark_panel_background": {
+    "type": "image",
+    "texture": "textures/ui/verxhade_background",
+    "nineslice_size": [ 4, 4, 4, 4 ]
+  },
+
+  "card_background": {
+    "type": "image",
+    "texture": "textures/ui/verxhade_panel",
+    "nineslice_size": [ 2, 2, 2, 2 ]
+  },
+
+  "header_label": {
+    "type": "label",
+    "color": [ 0.88, 0.82, 1.0 ],
+    "shadow": true,
+    "size": [ "100%", "100%" ],
+    "alignment": "center"
+  },
+
+  "section_title": {
+    "type": "label",
+    "color": [ 0.75, 0.56, 1.0 ],
+    "shadow": true,
+    "size": [ "100%", 12 ],
+    "alignment": "left"
+  },
+
+  "info_label": {
+    "type": "label",
+    "color": [ 0.9, 0.9, 0.9 ],
+    "shadow": true,
+    "size": [ "100%", 10 ],
+    "alignment": "left"
+  },
+
+  "tab_button@common.toggle": {
+    "type": "toggle",
+    "size": [ "20%", 20 ],
+    "$toggle_name": "verxhade_tab_toggle",
+    "$toggle_group_name": "verxhade_tabs",
+    "$toggle_binding_type": "global",
+    "controls": [
+      {
+        "unchecked": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.header_label": {
+                "text": "$tab_text",
+                "color": [ 0.6, 0.6, 0.6 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "unchecked_hover": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button_selected",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.header_label": {
+                "text": "$tab_text",
+                "color": [ 0.85, 0.85, 0.85 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "checked": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button_selected",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.header_label": {
+                "text": "$tab_text",
+                "color": [ 1.0, 1.0, 1.0 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "checked_hover": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button_pressed",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.header_label": {
+                "text": "$tab_text",
+                "color": [ 1.0, 1.0, 1.0 ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+
+  "action_button@common.button": {
+    "type": "button",
+    "size": [ "100%", 18 ],
+    "controls": [
+      {
+        "default": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.header_label": {
+                "text": "$button_text",
+                "color": [ 0.85, 0.85, 0.95 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "hover": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button_selected",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.header_label": {
+                "text": "$button_text",
+                "color": [ 1.0, 1.0, 1.0 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "pressed": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button_pressed",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.header_label": {
+                "text": "$button_text",
+                "color": [ 0.7, 0.7, 0.9 ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+
+  "toggle_setting@common.toggle": {
+    "type": "toggle",
+    "size": [ "100%", 18 ],
+    "$toggle_binding_type": "global",
+    "controls": [
+      {
+        "unchecked": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.info_label": {
+                "text": "$setting_label: OFF",
+                "color": [ 0.6, 0.6, 0.6 ],
+                "offset": [ 4, 4 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "unchecked_hover": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button_selected",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.info_label": {
+                "text": "$setting_label: OFF",
+                "color": [ 0.8, 0.8, 0.8 ],
+                "offset": [ 4, 4 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "checked": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button_selected",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.info_label": {
+                "text": "$setting_label: ON",
+                "color": [ 0.55, 0.96, 0.55 ],
+                "offset": [ 4, 4 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "checked_hover": {
+          "type": "image",
+          "texture": "textures/ui/verxhade_button_pressed",
+          "nineslice_size": [ 2, 2, 2, 2 ],
+          "size": [ "100%", "100%" ],
+          "controls": [
+            {
+              "lbl@verxhade_common.info_label": {
+                "text": "$setting_label: ON",
+                "color": [ 0.75, 1.0, 0.75 ],
+                "offset": [ 4, 4 ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+
+  "crosshair_dot": {
+    "type": "image",
+    "texture": "textures/ui/crosshair_dot",
+    "size": [ 16, 16 ],
+    "anchor_from": "center",
+    "anchor_to": "center"
+  },
+
+  "crosshair_circle": {
+    "type": "image",
+    "texture": "textures/ui/crosshair_circle",
+    "size": [ 16, 16 ],
+    "anchor_from": "center",
+    "anchor_to": "center"
+  }
+}
