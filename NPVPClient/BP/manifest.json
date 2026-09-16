@@ -1,7 +1,7 @@
 {
   "format_version": 2,
   "header": {
-    "name": "NPVP Client Behavior Pack",
+    "name": "NPVP Client Behavior Pack V2.0.1",
     "description": "NPVP PvP Utility, Practice Bots, HUD & Command System",
     "uuid": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
     "version": [2, 0, 1],
