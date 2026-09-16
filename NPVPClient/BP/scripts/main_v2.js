@@ -1,153 +1,73 @@
 import { world, system } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
-import { spawnPvPBot, spawnPracticeDummy, removeAllBots } from './bot_controller.js';
 
 const VERSION = '2.0.1';
 const PREFIX = '§8[§bNPVP§8]§r';
-const PROP = {
-  hud: 'npvp:hud',
-  stats: 'npvp:stats',
-  autoHealth: 'npvp:auto_health',
-  bots: 'npvp:bots'
-};
-const defaults = { hud: true, stats: true, autoHealth: true, bots: 0 };
+const BOT_ID = 'npvp:pvp_bot';
+const PROP = { hud: 'npvp:hud', stats: 'npvp:stats', health: 'npvp:auto_health' };
+const DEFAULTS = { hud: true, stats: true, health: true };
 
-function getBool(player, key) {
-  const value = player.getDynamicProperty(key);
-  return value === undefined ? defaults[key] : !!value;
-}
-function setBool(player, key, value) { player.setDynamicProperty(key, !!value); }
-function getStats(player) {
-  return {
-    kills: Number(player.getDynamicProperty('npvp:kills') ?? 0),
-    deaths: Number(player.getDynamicProperty('npvp:deaths') ?? 0),
-    hits: Number(player.getDynamicProperty('npvp:hits') ?? 0),
-    sessions: Number(player.getDynamicProperty('npvp:sessions') ?? 0)
-  };
-}
-function saveStats(player, stats) {
-  player.setDynamicProperty('npvp:kills', stats.kills);
-  player.setDynamicProperty('npvp:deaths', stats.deaths);
-  player.setDynamicProperty('npvp:hits', stats.hits);
-}
-function msg(player, text) { try { player.sendMessage(`${PREFIX} ${text}`); } catch {} }
-function tell(player, text) { try { player.sendMessage(text); } catch {} }
-function botEntities(player) {
-  try { return player.dimension.getEntities({ type: 'npvp:pvp_bot' }); }
-  catch { try { return player.dimension.getEntities({ type: 'verxhade:pvp_bot' }); } catch { return []; } }
-}
-function refreshBotCount(player) {
-  const count = botEntities(player).length;
-  player.setDynamicProperty(PROP.bots, count);
-  return count;
-}
-function showStats(player) {
-  const s = getStats(player);
-  const kd = s.deaths === 0 ? s.kills.toFixed(2) : (s.kills / s.deaths).toFixed(2);
-  const accuracyBase = s.hits + s.deaths;
-  const accuracy = accuracyBase === 0 ? 0 : Math.min(100, Math.round((s.hits / accuracyBase) * 100));
-  tell(player, `§b§lNPVP STATS§r\n§7Kills: §f${s.kills}\n§7Deaths: §f${s.deaths}\n§7K/D: §f${kd}\n§7Hits: §f${s.hits}\n§7Combat index: §f${accuracy}%`);
-}
-async function openSettings(player) {
-  const form = new ModalFormData().title('NPVP • Settings')
-    .toggle('Combat HUD', getBool(player, PROP.hud))
-    .toggle('Combat statistics', getBool(player, PROP.stats))
-    .toggle('Automatic bot health display', getBool(player, PROP.autoHealth));
+function bool(p, key) { const v = p.getDynamicProperty(key); return v === undefined ? DEFAULTS[key] : !!v; }
+function setBool(p, key, v) { p.setDynamicProperty(key, !!v); }
+function stats(p) { return { kills: Number(p.getDynamicProperty('npvp:kills') ?? 0), deaths: Number(p.getDynamicProperty('npvp:deaths') ?? 0), hits: Number(p.getDynamicProperty('npvp:hits') ?? 0) }; }
+function save(p, s) { p.setDynamicProperty('npvp:kills', s.kills); p.setDynamicProperty('npvp:deaths', s.deaths); p.setDynamicProperty('npvp:hits', s.hits); }
+function msg(p, s) { try { p.sendMessage(`${PREFIX} ${s}`); } catch {} }
+function bots(p) { try { return p.dimension.getEntities({ type: BOT_ID }); } catch { return []; } }
+function count(p) { return bots(p).length; }
+function showStats(p) { const s = stats(p); const kd = s.deaths ? (s.kills / s.deaths).toFixed(2) : s.kills.toFixed(2); msg(p, `§b§lSTATS§r  Kills: §f${s.kills} §7| Deaths: §f${s.deaths} §7| K/D: §f${kd} §7| Hits: §f${s.hits}`); }
+
+function spawnBot(p, difficulty = 'medium') {
   try {
-    const result = await form.show(player);
-    if (result.canceled || !result.formValues) return;
-    setBool(player, PROP.hud, !!result.formValues[0]);
-    setBool(player, PROP.stats, !!result.formValues[1]);
-    setBool(player, PROP.autoHealth, !!result.formValues[2]);
-    msg(player, 'Settings saved.');
-  } catch { msg(player, 'Could not open settings.'); }
+    const loc = p.location; const dir = p.getViewDirection();
+    const e = p.dimension.spawnEntity(BOT_ID, { x: loc.x + dir.x * 3, y: loc.y, z: loc.z + dir.z * 3 });
+    const event = difficulty === 'easy' ? 'set_easy' : difficulty === 'hard' ? 'set_hard' : 'set_medium';
+    try { e.triggerEvent(event); } catch {}
+    msg(p, `PvP bot spawned (§f${difficulty}§r).`);
+  } catch (e) { msg(p, `Bot spawn failed: §7${e?.message ?? 'entity unavailable'}`); }
 }
-async function openMenu(player) {
-  const count = refreshBotCount(player);
-  const form = new ActionFormData().title('NPVP Client • v2')
-    .body(`§7Command-driven PvP utility\n§8────────────────\n§fBots: §b${count}\n§fHUD: §a${getBool(player, PROP.hud) ? 'ON' : 'OFF'}\n§fStats: §a${getBool(player, PROP.stats) ? 'ON' : 'OFF'}`)
-    .button('⚔ Spawn Bot').button('🎯 Practice Dummy').button('🧹 Clear Bots')
-    .button('📊 Stats').button('⚙ Settings').button('❓ Help');
+function spawnDummy(p) {
   try {
-    const result = await form.show(player);
-    if (result.canceled) return;
-    if (result.selection === 0) return spawnBot(player, 'medium');
-    if (result.selection === 1) return spawnDummy(player);
-    if (result.selection === 2) return clearBots(player);
-    if (result.selection === 3) return showStats(player);
-    if (result.selection === 4) return openSettings(player);
-    if (result.selection === 5) return help(player);
-  } catch {}
+    const loc = p.location; const dir = p.getViewDirection();
+    const e = p.dimension.spawnEntity(BOT_ID, { x: loc.x + dir.x * 3, y: loc.y, z: loc.z + dir.z * 3 });
+    try { e.triggerEvent('set_dummy'); } catch {}
+    msg(p, 'Practice dummy spawned.');
+  } catch { msg(p, 'Dummy spawn failed.'); }
 }
-function spawnBot(player, difficulty = 'medium') {
-  try { spawnPvPBot(player, difficulty); system.runTimeout(() => refreshBotCount(player), 2); msg(player, `PvP bot spawned §7(${difficulty}).`); }
-  catch { msg(player, 'Bot spawn failed. Check the bot entity/pack version.'); }
+function clear(p) { let n = 0; for (const e of bots(p)) { try { e.remove(); n++; } catch {} } msg(p, `Removed §f${n}§r NPVP entities.`); }
+function help(p) { msg(p, '§b!npvp open §7| §fhelp §7| §fsettings §7| §fbots §7| §fspawn [easy|medium|hard] §7| §fdummy §7| §fclear §7| §fstats §7| §fhud [on|off] §7| §ftoggle <hud|stats|health> <on|off> §7| §freset §7| §fversion'); }
+
+async function settings(p) {
+  try {
+    const r = await new ModalFormData().title('NPVP • Settings').toggle('Combat HUD', bool(p, PROP.hud)).toggle('Statistics', bool(p, PROP.stats)).toggle('Auto health display', bool(p, PROP.health)).show(p);
+    if (r.canceled || !r.formValues) return;
+    setBool(p, PROP.hud, !!r.formValues[0]); setBool(p, PROP.stats, !!r.formValues[1]); setBool(p, PROP.health, !!r.formValues[2]); msg(p, 'Settings saved.');
+  } catch { msg(p, 'Settings UI is unavailable on this API version.'); }
 }
-function spawnDummy(player) { try { spawnPracticeDummy(player); msg(player, 'Practice dummy spawned.'); } catch { msg(player, 'Dummy spawn failed.'); } }
-function clearBots(player) { try { removeAllBots(); player.setDynamicProperty(PROP.bots, 0); msg(player, 'All NPVP bots cleared.'); } catch { msg(player, 'Could not clear bots.'); } }
-function help(player) { tell(player, `§b§lNPVP COMMANDS§r\n§f!npvp open §7- open client menu\n§f!npvp help §7- show commands\n§f!npvp settings §7- configure client\n§f!npvp bots §7- show active bots\n§f!npvp spawn [easy|medium|hard] §7- spawn bot\n§f!npvp dummy §7- spawn practice dummy\n§f!npvp clear §7- remove all bots\n§f!npvp stats §7- show PvP stats\n§f!npvp hud [on|off] §7- toggle HUD\n§f!npvp toggle <hud|stats|health> [on|off]\n§f!npvp reset §7- reset NPVP settings\n§f!npvp version §7- show version`); }
-function setHud(player, value) { setBool(player, PROP.hud, value); msg(player, `HUD ${value ? 'enabled' : 'disabled'}.`); }
-function reset(player) { setBool(player, PROP.hud, defaults.hud); setBool(player, PROP.stats, defaults.stats); setBool(player, PROP.autoHealth, defaults.autoHealth); msg(player, 'NPVP settings reset to defaults.'); }
-function parseBool(value) { if (value === 'on' || value === 'true' || value === '1') return true; if (value === 'off' || value === 'false' || value === '0') return false; return null; }
-function runCommand(player, raw) {
-  const args = raw.trim().split(/\s+/); if (args.shift()?.toLowerCase() !== '!npvp') return false;
-  const command = (args.shift() ?? 'help').toLowerCase();
-  switch (command) {
-    case 'open': openMenu(player); return true;
-    case 'help': case '?': help(player); return true;
-    case 'settings': case 'config': openSettings(player); return true;
-    case 'bots': msg(player, `Active bots: §f${refreshBotCount(player)}`); return true;
-    case 'spawn': spawnBot(player, ['easy', 'medium', 'hard'].includes(args[0]?.toLowerCase()) ? args[0].toLowerCase() : 'medium'); return true;
-    case 'dummy': case 'target': spawnDummy(player); return true;
-    case 'clear': case 'remove': clearBots(player); return true;
-    case 'stats': showStats(player); return true;
-    case 'hud': { const value = parseBool(args[0]?.toLowerCase()); if (value === null) msg(player, `HUD is currently ${getBool(player, PROP.hud) ? 'ON' : 'OFF'}. Use §f!npvp hud on§r or §f!npvp hud off§r.`); else setHud(player, value); return true; }
-    case 'toggle': { const module = args[0]?.toLowerCase(); const value = parseBool(args[1]?.toLowerCase()); const map = { hud: PROP.hud, stats: PROP.stats, health: PROP.autoHealth, autohealth: PROP.autoHealth }; if (!map[module] || value === null) { msg(player, 'Usage: !npvp toggle <hud|stats|health> <on|off>'); return true; } setBool(player, map[module], value); msg(player, `${module} ${value ? 'enabled' : 'disabled'}.`); return true; }
-    case 'reset': reset(player); return true;
-    case 'version': msg(player, `NPVP Client §b${VERSION}§r • command edition`); return true;
-    case 'info': msg(player, 'NPVP Client is a PvP practice utility with bots, targets, HUD and persistent settings.'); return true;
-    default: msg(player, `Unknown command §f${command}§r. Use §f!npvp help§r.`); return true;
-  }
+async function openMenu(p) {
+  try {
+    const r = await new ActionFormData().title(`NPVP Client v${VERSION}`).body(`§7Bots: §b${count(p)}\n§7HUD: §a${bool(p, PROP.hud) ? 'ON' : 'OFF'}\n§7Stats: §a${bool(p, PROP.stats) ? 'ON' : 'OFF'}`).button('⚔ Spawn Bot').button('🎯 Practice Dummy').button('🧹 Clear').button('📊 Stats').button('⚙ Settings').button('❓ Help').show(p);
+    if (r.canceled) return;
+    if (r.selection === 0) spawnBot(p); else if (r.selection === 1) spawnDummy(p); else if (r.selection === 2) clear(p); else if (r.selection === 3) showStats(p); else if (r.selection === 4) settings(p); else if (r.selection === 5) help(p);
+  } catch { msg(p, 'Menu UI is unavailable on this API version.'); }
+}
+function parse(v) { if (['on','true','1'].includes(v)) return true; if (['off','false','0'].includes(v)) return false; return null; }
+function command(p, text) {
+  const a = text.trim().split(/\s+/); if (a.shift()?.toLowerCase() !== '!npvp') return false; const c = (a.shift() ?? 'help').toLowerCase();
+  if (c === 'open' || c === 'menu') openMenu(p); else if (c === 'help' || c === '?') help(p); else if (c === 'settings' || c === 'config') settings(p); else if (c === 'bots') msg(p, `Active bots: §f${count(p)}`); else if (c === 'spawn') spawnBot(p, ['easy','medium','hard'].includes(a[0]?.toLowerCase()) ? a[0].toLowerCase() : 'medium'); else if (c === 'dummy' || c === 'target') spawnDummy(p); else if (c === 'clear' || c === 'remove') clear(p); else if (c === 'stats') showStats(p); else if (c === 'hud') { const v = parse(a[0]?.toLowerCase()); if (v === null) msg(p, `HUD: §f${bool(p, PROP.hud) ? 'ON' : 'OFF'}`); else { setBool(p, PROP.hud, v); msg(p, `HUD ${v ? 'enabled' : 'disabled'}.`); } } else if (c === 'toggle') { const map = { hud: PROP.hud, stats: PROP.stats, health: PROP.health }; const v = parse(a[1]?.toLowerCase()); if (!map[a[0]] || v === null) msg(p, 'Usage: !npvp toggle <hud|stats|health> <on|off>'); else { setBool(p, map[a[0]], v); msg(p, `${a[0]} ${v ? 'enabled' : 'disabled'}.`); } } else if (c === 'reset') { for (const [k,v] of Object.entries(DEFAULTS)) setBool(p, PROP[k], v); msg(p, 'Settings reset.'); } else if (c === 'version') msg(p, `NPVP Client §bv${VERSION}`); else msg(p, 'Unknown command. Use !npvp help');
+  return true;
 }
 
-world.beforeEvents.chatSend.subscribe((event) => {
-  const message = event.message?.trim();
-  if (!message?.toLowerCase().startsWith('!npvp')) return;
-  event.cancel = true;
-  runCommand(event.sender, message);
-});
-
-world.afterEvents.playerSpawn.subscribe((event) => {
-  if (!event.initialSpawn) return;
-  const player = event.player;
-  player.setDynamicProperty('npvp:sessions', Number(player.getDynamicProperty('npvp:sessions') ?? 0) + 1);
-  system.runTimeout(() => msg(player, `NPVP Client §bv${VERSION}§r loaded. Use §f!npvp open§r.`), 20);
-});
-
-// Some Bedrock API versions do not expose every afterEvents signal. Guard the
-// event object before accessing .subscribe instead of using optional chaining
-// on .subscribe itself (which still attempts to call undefined).
-const afterEvents = world.afterEvents;
-if (afterEvents && afterEvents.entityHitEntity) {
-  afterEvents.entityHitEntity.subscribe((event) => {
-    const attacker = event.damagingEntity;
-    if (!attacker || attacker.typeId !== 'minecraft:player' || !getBool(attacker, PROP.stats)) return;
-    const stats = getStats(attacker); stats.hits++; saveStats(attacker, stats);
-  });
+// Compatibility guard: never call .subscribe on an event signal that does not exist.
+if (world.beforeEvents?.chatSend) {
+  world.beforeEvents.chatSend.subscribe(e => { const m = e.message?.trim(); if (!m?.toLowerCase().startsWith('!npvp')) return; e.cancel = true; command(e.sender, m); });
 }
-if (afterEvents && afterEvents.entityDie) {
-  afterEvents.entityDie.subscribe((event) => {
-    const dead = event.deadEntity; if (!dead) return;
-    if (dead.typeId === 'minecraft:player') { const stats = getStats(dead); stats.deaths++; saveStats(dead, stats); }
-    const killer = event.damageSource?.damagingEntity;
-    if (killer?.typeId === 'minecraft:player' && dead.typeId !== 'minecraft:player') { const stats = getStats(killer); stats.kills++; saveStats(killer, stats); }
-  });
+if (world.afterEvents?.playerSpawn) {
+  world.afterEvents.playerSpawn.subscribe(e => { if (!e.initialSpawn) return; system.runTimeout(() => msg(e.player, `NPVP Client §bv${VERSION}§r loaded. Use §f!npvp open§r.`), 20); });
 }
-
-system.runInterval(() => {
-  for (const player of world.getPlayers()) {
-    if (!getBool(player, PROP.hud)) continue;
-    const bots = refreshBotCount(player); const stats = getStats(player);
-    try { player.onScreenDisplay.setActionBar(`§bNPVP §8• §fBots §b${bots} §8• §fK/D §b${stats.kills}/${stats.deaths}`); } catch {}
-  }
-}, 10);
+if (world.afterEvents?.entityHitEntity) {
+  world.afterEvents.entityHitEntity.subscribe(e => { const p = e.damagingEntity; if (!p || p.typeId !== 'minecraft:player' || !bool(p, PROP.stats)) return; const s = stats(p); s.hits++; save(p, s); });
+}
+if (world.afterEvents?.entityDie) {
+  world.afterEvents.entityDie.subscribe(e => { const d = e.deadEntity; if (!d) return; if (d.typeId === 'minecraft:player') { const s = stats(d); s.deaths++; save(d, s); } const k = e.damageSource?.damagingEntity; if (k?.typeId === 'minecraft:player' && d.typeId === BOT_ID) { const s = stats(k); s.kills++; save(k, s); } });
+}
+system.runInterval(() => { for (const p of world.getPlayers()) { if (!bool(p, PROP.hud)) continue; const s = stats(p); try { p.onScreenDisplay.setActionBar(`§bNPVP §8• §fBots §b${count(p)} §8• §fK/D §b${s.kills}/${s.deaths}`); } catch {} } }, 10);
