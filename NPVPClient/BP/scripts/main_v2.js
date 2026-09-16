@@ -1,7 +1,7 @@
 import { world, system } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
 
-const VERSION = '2.0.1';
+const VERSION = '2.0.2';
 const PREFIX = '§8[§bNPVP§8]§r';
 const BOT_ID = 'npvp:pvp_bot';
 const PROP = { hud: 'npvp:hud', stats: 'npvp:stats', health: 'npvp:auto_health' };
@@ -45,7 +45,7 @@ async function settings(p) {
 }
 async function openMenu(p) {
   try {
-    const r = await new ActionFormData().title(`NPVP Client v${VERSION}`).body(`§7Bots: §b${count(p)}\n§7HUD: §a${bool(p, PROP.hud) ? 'ON' : 'OFF'}\n§7Stats: §a${bool(p, PROP.stats) ? 'ON' : 'OFF'}`).button('⚔ Spawn Bot').button('🎯 Practice Dummy').button('🧹 Clear').button('📊 Stats').button('⚙ Settings').button('❓ Help').show(p);
+    const r = await new ActionFormData().title(`NPVP Client v${VERSION}`).body(`§7Bots: §b${count(p)}\n§7HUD: §a${bool(p, PROP.hud) ? 'ON' : 'OFF'}\n§7Stats: §a${bool(p, PROP.stats) ? 'ON' : 'OFF'}`).button('Spawn Bot').button('Practice Dummy').button('Clear').button('Stats').button('Settings').button('Help').show(p);
     if (r.canceled) return;
     if (r.selection === 0) spawnBot(p); else if (r.selection === 1) spawnDummy(p); else if (r.selection === 2) clear(p); else if (r.selection === 3) showStats(p); else if (r.selection === 4) settings(p); else if (r.selection === 5) help(p);
   } catch { msg(p, 'Menu UI is unavailable on this API version.'); }
@@ -57,17 +57,30 @@ function command(p, text) {
   return true;
 }
 
-// Compatibility guard: never call .subscribe on an event signal that does not exist.
-if (world.beforeEvents?.chatSend) {
-  world.beforeEvents.chatSend.subscribe(e => { const m = e.message?.trim(); if (!m?.toLowerCase().startsWith('!npvp')) return; e.cancel = true; command(e.sender, m); });
+function handleChat(e) {
+  const m = typeof e.message === 'string' ? e.message.trim() : '';
+  if (!m.toLowerCase().startsWith('!npvp')) return;
+  if (e.cancel !== undefined) e.cancel = true;
+  const p = e.sender;
+  if (!p) return;
+  system.run(() => { try { command(p, m); } catch (err) { msg(p, `Command error: §7${err?.message ?? err}`); } });
 }
-if (world.afterEvents?.playerSpawn) {
+
+// @minecraft/server 2.0.0 provides chatSend. The fallback is only used on builds where
+// the before event is unavailable; it avoids silently disabling !npvp on API mismatches.
+if (world.beforeEvents?.chatSend?.subscribe) {
+  world.beforeEvents.chatSend.subscribe(handleChat);
+} else if (world.afterEvents?.chatSend?.subscribe) {
+  world.afterEvents.chatSend.subscribe(handleChat);
+}
+
+if (world.afterEvents?.playerSpawn?.subscribe) {
   world.afterEvents.playerSpawn.subscribe(e => { if (!e.initialSpawn) return; system.runTimeout(() => msg(e.player, `NPVP Client §bv${VERSION}§r loaded. Use §f!npvp open§r.`), 20); });
 }
-if (world.afterEvents?.entityHitEntity) {
+if (world.afterEvents?.entityHitEntity?.subscribe) {
   world.afterEvents.entityHitEntity.subscribe(e => { const p = e.damagingEntity; if (!p || p.typeId !== 'minecraft:player' || !bool(p, PROP.stats)) return; const s = stats(p); s.hits++; save(p, s); });
 }
-if (world.afterEvents?.entityDie) {
+if (world.afterEvents?.entityDie?.subscribe) {
   world.afterEvents.entityDie.subscribe(e => { const d = e.deadEntity; if (!d) return; if (d.typeId === 'minecraft:player') { const s = stats(d); s.deaths++; save(d, s); } const k = e.damageSource?.damagingEntity; if (k?.typeId === 'minecraft:player' && d.typeId === BOT_ID) { const s = stats(k); s.kills++; save(k, s); } });
 }
 system.runInterval(() => { for (const p of world.getPlayers()) { if (!bool(p, PROP.hud)) continue; const s = stats(p); try { p.onScreenDisplay.setActionBar(`§bNPVP §8• §fBots §b${count(p)} §8• §fK/D §b${s.kills}/${s.deaths}`); } catch {} } }, 10);
